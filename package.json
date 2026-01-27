@@ -12,11 +12,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dloizides/utils.git"
+    "url": "https://github.com/openmindednewby/utils.git"
   },
-  "homepage": "https://github.com/dloizides/utils#readme",
+  "homepage": "https://github.com/openmindednewby/utils#readme",
   "bugs": {
-    "url": "https://github.com/dloizides/utils/issues"
+    "url": "https://github.com/openmindednewby/utils/issues"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
