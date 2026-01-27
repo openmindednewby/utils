@@ -1,0 +1,93 @@
+{
+  "name": "@dloizides/utils",
+  "version": "1.0.0",
+  "description": "Type-safe utility functions for TypeScript projects",
+  "keywords": [
+    "typescript",
+    "utilities",
+    "type-guards",
+    "validation"
+  ],
+  "author": "dloizides",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dloizides/utils.git"
+  },
+  "homepage": "https://github.com/dloizides/utils#readme",
+  "bugs": {
+    "url": "https://github.com/dloizides/utils/issues"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
+    },
+    "./guards": {
+      "require": {
+        "types": "./dist/guards/index.d.ts",
+        "default": "./dist/guards/index.js"
+      },
+      "import": {
+        "types": "./dist/guards/index.d.mts",
+        "default": "./dist/guards/index.mjs"
+      }
+    },
+    "./assertions": {
+      "require": {
+        "types": "./dist/assertions/index.d.ts",
+        "default": "./dist/assertions/index.js"
+      },
+      "import": {
+        "types": "./dist/assertions/index.d.mts",
+        "default": "./dist/assertions/index.mjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build && npm run test",
+    "version": "npm run build",
+    "postversion": "git push && git push --tags"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.1.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {},
+  "dependencies": {}
+}
