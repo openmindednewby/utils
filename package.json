@@ -72,6 +72,11 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
+    "security:audit": "npm audit --audit-level=high",
+    "deps:outdated": "npm outdated || true",
+    "deps:unused": "npx depcheck",
+    "deps:licenses": "npx license-checker --onlyAllow \"MIT;Apache-2.0;ISC;BSD-2-Clause;BSD-3-Clause;0BSD;Unlicense;CC0-1.0\"",
+    "deps:health": "npm run deps:outdated && npm run deps:unused",
     "prepublishOnly": "npm run clean && npm run build && npm run test",
     "version": "npm run build",
     "postversion": "git push && git push --tags"
