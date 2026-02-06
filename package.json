@@ -74,7 +74,7 @@
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
     "security:audit": "npm audit --audit-level=high",
-    "deps:outdated": "npm outdated || true",
+    "deps:outdated": "npm outdated || exit 0",
     "deps:unused": "npx depcheck",
     "deps:licenses": "npx license-checker --onlyAllow \"MIT;Apache-2.0;ISC;BSD-2-Clause;BSD-3-Clause;0BSD;Unlicense;CC0-1.0\"",
     "deps:health": "npm run deps:outdated && npm run deps:unused",
@@ -84,7 +84,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.19.32",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.57.0",
