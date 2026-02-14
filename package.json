@@ -63,7 +63,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "rimraf dist && tsup",
     "build:watch": "tsup --watch",
     "build:analyze": "tsup && size-limit",
     "test": "jest",
