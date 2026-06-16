@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-06-15
+
+### Added
+
+- `getErrorMessage(value, fallback?)` — extract a human-readable message from any error shape
+  (Error / string / `{message}`). Consolidates the duplicated app-side `errorMessage` helper.
+- `formatDate(date, locale, options?)` — locale-aware date formatting (pure; caller supplies the
+  locale, e.g. from i18n). Backs the apps' `FD` helper. (Capability Wave C1, batch 6.)
+
 ## [1.0.0] - 2024-01-27
 
 ### Added
