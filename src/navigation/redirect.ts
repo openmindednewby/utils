@@ -58,7 +58,7 @@ function normalizeRouterPath(path: string): string {
 
 /** Current location as path+search+hash, or null outside a browser (SSR/native). */
 function getCurrentLocation(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {return null;}
   return `${window.location.pathname}${window.location.search}${window.location.hash}`;
 }
 
@@ -67,7 +67,7 @@ function scheduleFallbackNavigation(before: string, normalized: string): void {
   setTimeout(() => {
     try {
       const after = getCurrentLocation();
-      if (after === before && typeof window !== 'undefined') window.location.replace(normalized);
+      if (after === before && typeof window !== 'undefined') {window.location.replace(normalized);}
     } catch {
       /* ignore — window may have gone away (unmount/teardown) */
     }
@@ -76,7 +76,7 @@ function scheduleFallbackNavigation(before: string, normalized: string): void {
 
 /** Attempt a hard browser navigation. Returns false outside a browser or on throw. */
 function tryWindowNavigation(normalized: string): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') {return false;}
   try {
     window.location.replace(normalized);
     return true;
@@ -94,7 +94,7 @@ export function setRedirectHandler(h: (path: string) => void): void {
   while (queuedRedirects.length > 0) {
     const p = queuedRedirects.shift();
     try {
-      if (typeof p === 'string' && p.length > 0) h(normalizeRouterPath(p));
+      if (typeof p === 'string' && p.length > 0) {h(normalizeRouterPath(p));}
     } catch {
       /* swallow; the handler may still not be ready */
     }
@@ -111,13 +111,13 @@ export function redirectTo(path: string): void {
     const before = getCurrentLocation();
     try {
       redirectHandler(normalized);
-      if (typeof before === 'string') scheduleFallbackNavigation(before, normalized);
+      if (typeof before === 'string') {scheduleFallbackNavigation(before, normalized);}
       return;
     } catch {
       /* fall through to a hard navigation */
     }
   }
-  if (tryWindowNavigation(normalized)) return;
+  if (tryWindowNavigation(normalized)) {return;}
   queuedRedirects.push(normalized);
 }
 
