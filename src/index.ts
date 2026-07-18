@@ -18,9 +18,19 @@ export { formatDate } from './format/formatDate';
 // Navigation (framework-agnostic redirect escape hatch)
 export { setRedirectHandler, redirectTo, resetRedirectHandler } from './navigation/redirect';
 
+// Stale-chunk detection + one-shot reload guard (pairs with <AppErrorBoundary>)
+export {
+  isChunkLoadError,
+  attemptChunkRecovery,
+  clearChunkRecoveryFlag,
+  reloadPage,
+} from './chunkRecovery/chunkRecovery';
+export type { ChunkRecoveryPorts } from './chunkRecovery/chunkRecovery';
+
 // Re-export namespaced
 export * as guards from './guards';
 export * as assertions from './assertions';
 export * as error from './error';
 export * as format from './format';
 export * as navigation from './navigation';
+export * as chunkRecovery from './chunkRecovery';

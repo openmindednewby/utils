@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-07-19
+
+### Added
+
+- `isChunkLoadError(error)` / `attemptChunkRecovery(ports?)` / `clearChunkRecoveryFlag(ports?)` /
+  `reloadPage(ports?)` + the `ChunkRecoveryPorts` type — stale-chunk detection and a one-shot
+  guarded reload. After a deploy the browser can hold a stale `index.html` referencing hashed
+  chunks that now 404; a single guarded `location.reload()` recovers silently, and the
+  sessionStorage one-shot flag stops it becoming a reload LOOP when the reload does not help.
+  Detection is a pure predicate; the storage + reload side effects are injectable ports.
+  Promoted from the byte-identical `src/utils/chunkLoadRecovery.ts` triplets in kefi-web,
+  erevna-web and katalogos-web (extract-on-2nd-use; this was the 3rd copy — the original file's
+  own header predicted the move). Also exported as the `chunkRecovery` namespace.
+  Pairs with `<AppErrorBoundary>` from `@dloizides/ui-feedback` ≥1.7.0, which consumes these as
+  its `retryable` / `onMount` / `recover` injections.
+
 ## [1.2.0] - 2026-07-18
 
 ### Added
