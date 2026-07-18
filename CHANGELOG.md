@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-18
+
+### Added
+
+- `setRedirectHandler(handler)` / `redirectTo(path)` / `resetRedirectHandler()` — a
+  framework-agnostic redirect escape hatch for non-React callers (axios 401 interceptors,
+  auth providers) that need to navigate without a router hook. Falls back through
+  registered handler → `window.location.replace` → a queue drained when the router mounts,
+  and forces a hard navigation if the router silently failed to change the URL.
+  Promoted from the byte-identical `lib/navigation.ts` twins in erevna-web and
+  katalogos-web (de-fork wave W1.1). Also exported as the `navigation` namespace.
+
+### Fixed
+
+- The promoted watchdog guarded its `window` access with `try`/`catch` only; it now checks
+  `typeof window !== 'undefined'` explicitly, so a non-browser host cannot reach a
+  `ReferenceError` path at all. Surfaced by porting the code into a package whose tsconfig
+  has no `DOM` lib.
+
 ## [1.1.0] - 2026-06-15
 
 ### Added
