@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-07-19
+
+### Added
+
+- `sanitizeHtml(text)` / `removeControlCharacters(text)` / `sanitizeNotificationMessage(message, maxLength?)` /
+  `sanitizeText(text, maxLength?)` / `sanitizeUrl(url)` — XSS defence-in-depth for user-provided
+  text: HTML-entity escaping, control/zero-width/BOM stripping (homograph + hidden-content
+  attacks), length capping, and `javascript:`/`data:`/`vbscript:` URL blocking. Pure string
+  work with no imports at all, so it is safe on web and native alike. Also exported as the
+  `sanitize` namespace. Promoted from the byte-identical `src/utils/sanitize.ts` pair in
+  erevna-web and katalogos-web (de-fork Wave 1); all 35 tests moved with it unchanged.
+
+  ⚠️ **Naming hazard, inherited — do not "fix" by guessing.** The `sanitizeHtml` exported here
+  ESCAPES entities (`<` → `&lt;`) and returns display-safe text. `@dloizides/rn-web-hooks`
+  exports a DIFFERENT `sanitizeHtml` — a DOMPurify scrubber that PARSES real DOM and strips
+  dangerous nodes. The fork gave two different jobs one name. They are kept in separate
+  packages so no single import site can resolve both, and neither was renamed here because
+  this wave is a provably-safe move, not a redesign. A follow-up should rename the escaping
+  one to `escapeHtml`.
+
 ## [1.3.0] - 2026-07-19
 
 ### Added
