@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/guards/index.ts', 'src/assertions/index.ts'],
+  entry: ['src/index.ts', 'src/guards/index.ts', 'src/assertions/index.ts', 'src/csv/index.ts'],
   format: ['cjs', 'esm'],
   dts: true,
   splitting: false,

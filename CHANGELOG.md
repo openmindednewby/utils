@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-08-03
+
+### Added
+
+- `toCsv(rows, columns)` + `CsvColumn<T>` — an RFC 4180 CSV serializer (header row + one row per
+  item; quotes fields containing `,` `"` CR/LF; `null`/`undefined` → empty cell; empty rows yield
+  the header line alone). Pure and DOM-free — the escaping is the whole risk surface, so it lives
+  here where a unit test can hammer it, split from any browser download shell (an app-owned,
+  side-effecting concern). Exported from the root and as the `csv` namespace + `@dloizides/utils/csv`
+  subpath. Promoted from finreg-web's `utils/exportCsv.ts` (ZY-25) on its 2nd-consumer horizon; the
+  9 RFC-4180 edge-case tests moved with it unchanged. The DOM `<a download>` shell that consumes it
+  stays app-side until a 2nd consumer needs it.
+
 ## [1.4.0] - 2026-07-19
 
 ### Added

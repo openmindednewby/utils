@@ -15,6 +15,10 @@ export { getErrorMessage } from './error/getErrorMessage';
 // Formatting
 export { formatDate } from './format/formatDate';
 
+// CSV serialization (RFC 4180, pure — no DOM). The browser download shell stays app-side.
+export { toCsv } from './csv/toCsv';
+export type { CsvColumn } from './csv/toCsv';
+
 // Text sanitization (XSS defence-in-depth). Pure string work — no DOM.
 //
 // ⚠️ `sanitizeHtml` here ESCAPES entities (`<` → `&lt;`). It is NOT the DOMPurify
@@ -47,6 +51,7 @@ export * as guards from './guards';
 export * as assertions from './assertions';
 export * as error from './error';
 export * as format from './format';
+export * as csv from './csv';
 export * as navigation from './navigation';
 export * as chunkRecovery from './chunkRecovery';
 export * as sanitize from './sanitize';
