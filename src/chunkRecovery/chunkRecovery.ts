@@ -41,8 +41,28 @@ interface BrowserWindow {
 
 declare const window: BrowserWindow | undefined;
 
-/** sessionStorage key for the one-shot auto-reload guard. */
-const CHUNK_RELOAD_FLAG = 'ui.chunkReload.attempted';
+/**
+ * sessionStorage key holding the epoch-ms timestamp of the last auto-reload attempt.
+ *
+ * A TIMESTAMP, not the old boolean `ui.chunkReload.attempted`. The boolean was released
+ * by the consumer on a clean mount, and a lazy route makes the mount clean: the root
+ * boundary commits (a Suspense fallback renders), `componentDidMount` releases the guard,
+ * and only THEN does the dynamic import reject with a 404 chunk. Recovery re-armed itself
+ * on every pass, so the reload loop the guard exists to bound ran unbounded.
+ */
+const CHUNK_RELOAD_AT = 'ui.chunkReload.attemptedAt';
+
+/**
+ * How long one recorded attempt keeps blocking a second automatic reload.
+ *
+ * WHY A WINDOW RATHER THAN A COUNTER: attempt-counting bounds the loop too, but a counter
+ * has to be reset by somebody, and the only place a consumer can put that reset is a clean
+ * mount — the exact release that caused this defect. A window expires by itself, so there is
+ * no release call to fire at the wrong moment. One minute is far longer than a reload-plus-boot
+ * cycle (single-digit seconds, which is what the loop runs at) and far shorter than the gap to
+ * a genuinely later, unrelated rollout, which is still allowed to auto-recover once.
+ */
+const RECOVERY_COOLDOWN_MS = 60_000;
 
 /** Messages/names emitted by webpack/metro/vite/Safari for a stale-chunk failure. */
 const CHUNK_ERROR_PATTERNS: readonly RegExp[] = [
@@ -57,10 +77,12 @@ const CHUNK_ERROR_PATTERNS: readonly RegExp[] = [
 
 /** Injectable side-effect ports; default to the real `window`. */
 export interface ChunkRecoveryPorts {
-  hasFlag: () => boolean;
-  setFlag: () => void;
-  clearFlag: () => void;
+  /** Epoch-ms of the last recorded attempt, or `null` when none is stored. */
+  readAttemptAt: () => number | null;
+  recordAttemptAt: (at: number) => void;
+  clearAttempt: () => void;
   reload: () => void;
+  now: () => number;
 }
 
 /** True when `error` looks like a stale-chunk / failed-dynamic-import failure. */
@@ -90,13 +112,21 @@ function defaultPorts(): ChunkRecoveryPorts {
   const storage = resolveStorage();
   const hasWindow = typeof window !== 'undefined';
   return {
-    hasFlag: () => Boolean(storage?.getItem(CHUNK_RELOAD_FLAG)),
-    setFlag: (): void => {
-      storage?.setItem(CHUNK_RELOAD_FLAG, '1');
+    readAttemptAt: (): number | null => {
+      const raw = storage?.getItem(CHUNK_RELOAD_AT);
+      if (raw === null || raw === undefined || raw === '') {
+        return null;
+      }
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : null;
     },
-    clearFlag: (): void => {
-      storage?.removeItem(CHUNK_RELOAD_FLAG);
+    recordAttemptAt: (at: number): void => {
+      storage?.setItem(CHUNK_RELOAD_AT, String(at));
     },
+    clearAttempt: (): void => {
+      storage?.removeItem(CHUNK_RELOAD_AT);
+    },
+    now: (): number => Date.now(),
     reload: (): void => {
       if (hasWindow) {
         window.location.reload();
@@ -105,23 +135,42 @@ function defaultPorts(): ChunkRecoveryPorts {
   };
 }
 
+/** True when a recorded attempt is still inside the cooldown window. */
+function isWithinCooldown(attemptedAt: number | null, now: number): boolean {
+  return attemptedAt !== null && now - attemptedAt < RECOVERY_COOLDOWN_MS;
+}
+
 /**
- * Attempt a one-shot reload to recover from a stale-chunk error.
- * Returns `true` when a reload was triggered, `false` when the one-shot guard was
- * already spent (the caller then shows a manual Reload action, never a loop).
+ * Attempt a guarded reload to recover from a stale-chunk error.
+ * Returns `true` when a reload was triggered, `false` while the cooldown from the previous
+ * attempt is still running (the caller then shows a manual Reload action, never a loop).
+ *
+ * `recordAttemptAt` and `reload` stay synchronous and adjacent so the record survives the
+ * navigation that follows.
  */
 export function attemptChunkRecovery(ports: ChunkRecoveryPorts = defaultPorts()): boolean {
-  if (ports.hasFlag()) {
+  const now = ports.now();
+  if (isWithinCooldown(ports.readAttemptAt(), now)) {
     return false;
   }
-  ports.setFlag();
+  ports.recordAttemptAt(now);
   ports.reload();
   return true;
 }
 
-/** Clear the one-shot guard after a clean load so a FUTURE deploy can auto-recover. */
+/**
+ * Release the guard after a clean load — but ONLY once the cooldown has expired.
+ *
+ * Consumers call this from the root boundary's clean-mount hook, and on a lazy route that
+ * mount happens BEFORE the chunk rejects. Refusing to clear a live record is what makes the
+ * bound hold no matter when the consumer calls this: an expired record permits recovery
+ * anyway, so clearing it only tidies storage, while a live one is left alone.
+ */
 export function clearChunkRecoveryFlag(ports: ChunkRecoveryPorts = defaultPorts()): void {
-  ports.clearFlag();
+  if (isWithinCooldown(ports.readAttemptAt(), ports.now())) {
+    return;
+  }
+  ports.clearAttempt();
 }
 
 /** Manually reload the page (the Reload action). */

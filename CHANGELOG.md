@@ -99,3 +99,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full TypeScript support with type narrowing
 - ESM and CommonJS module support
 - 100% test coverage
+
+## 1.8.0
+
+### chunkRecovery — the reload guard is now a COOLDOWN, not a boolean released on mount
+
+The one-shot boolean `ui.chunkReload.attempted` was released by consumers from the root
+boundary's clean-mount hook. On a lazy route that mount is clean — a Suspense fallback
+renders, `componentDidMount` fires, and only THEN does the dynamic import reject with a
+404 chunk. The release re-armed recovery on every pass, so the reload ran unbounded.
+
+The guard is now the epoch-ms timestamp `ui.chunkReload.attemptedAt`, and a recorded
+attempt blocks another automatic reload for 60s. `clearChunkRecoveryFlag` refuses to clear
+a record still inside that window, so the bound holds no matter when a consumer calls it.
+A genuinely later rollout still auto-recovers once, because the window expires by itself.
+
+BREAKING for anyone injecting `ChunkRecoveryPorts` (test code only — every app uses the
+window defaults, so app call sites are unchanged): `hasFlag`/`setFlag`/`clearFlag` are now
+`readAttemptAt`/`recordAttemptAt`/`clearAttempt`, plus a `now` port.
