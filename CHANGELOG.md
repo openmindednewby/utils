@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-09-09
+
+### Fixed
+
+- `clearChunkRecoveryFlag` no longer releases the reload guard on a clean mount. The guard was a
+  sessionStorage boolean and `AppErrorBoundary` cleared it whenever the tree committed cleanly, so
+  on a lazy route after a rollout the boundary mounted clean, the flag was released, the lazy
+  import then 404'd after the commit, and nothing was left to stop the next reload — an unbounded
+  loop in kefi-web, erevna-web and katalogos-web. The flag is now a 60s cooldown timestamp
+  (`ui.chunkReload.attemptedAt`) and the clear refuses to release inside the window, so a route
+  that keeps failing reloads exactly once. `ChunkRecoveryPorts` changes shape accordingly.
+
 ## [1.7.0] - 2026-08-03
 
 ### Added
