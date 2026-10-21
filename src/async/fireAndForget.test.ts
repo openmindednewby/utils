@@ -1,12 +1,17 @@
 import { fireAndForget } from './fireAndForget';
 
 describe('fireAndForget', () => {
-  it('with a rejecting promise, swallows the rejection', async () => {
-    const rejecting = Promise.reject(new Error('boom'));
+  it('with a rejecting promise, attaches one catch handler that swallows the rejection', () => {
+    const catchSpy = jest.fn();
+    const stub = { catch: catchSpy } as unknown as Promise<unknown>;
+    const expectedCalls = 1;
+    const expectedHandlerResult = undefined;
 
-    fireAndForget(rejecting);
+    fireAndForget(stub);
 
-    await expect(rejecting.catch(() => 'handled')).resolves.toBe('handled');
+    expect(catchSpy).toHaveBeenCalledTimes(expectedCalls);
+    const handler = catchSpy.mock.calls[0][0] as (reason: unknown) => unknown;
+    expect(handler(new Error('boom'))).toBe(expectedHandlerResult);
   });
 
   it('with a resolving promise, returns undefined synchronously', () => {
