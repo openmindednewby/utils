@@ -1,0 +1,1 @@
+export { fireAndForget } from './fireAndForget';

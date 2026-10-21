@@ -9,6 +9,9 @@ export { isEmptyString } from './guards/isEmptyString';
 // Assertions
 export { assertDefined } from './assertions/assertDefined';
 
+// Async helpers
+export { fireAndForget } from './async/fireAndForget';
+
 // Error helpers
 export { getErrorMessage } from './error/getErrorMessage';
 
@@ -49,6 +52,7 @@ export type { ChunkRecoveryPorts } from './chunkRecovery/chunkRecovery';
 // Re-export namespaced
 export * as guards from './guards';
 export * as assertions from './assertions';
+export * as async from './async';
 export * as error from './error';
 export * as format from './format';
 export * as csv from './csv';
