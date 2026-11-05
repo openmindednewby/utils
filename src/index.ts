@@ -60,3 +60,5 @@ export * as csv from './csv';
 export * as navigation from './navigation';
 export * as chunkRecovery from './chunkRecovery';
 export * as sanitize from './sanitize';
+
+export { hasArrayField, hasStringFields, parseChecked, toFileJson } from './json/checkedJson';
