@@ -11,6 +11,7 @@ export { assertDefined } from './assertions/assertDefined';
 
 // Async helpers
 export { fireAndForget } from './async/fireAndForget';
+export { singleFlight } from './async/singleFlight';
 
 // Error helpers
 export { getErrorMessage } from './error/getErrorMessage';

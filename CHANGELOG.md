@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `fireAndForget(promise)` (EXTRACT-TS-I18N-1 "Fold duplicated i18n and utils into @dloizides/i18n and @dloizides/utils"): starts a promise and swallows its rejection; replaces local copies in agora-web and ichnos-web.
+- `singleFlight(action)` (BEAD-3 "Report form: searchable pattern field", AC-SH-2): wraps an async action so a call while the first runs does nothing, and a failure still frees the next call; moved from jinx-bead-patterns.
 
 ## [1.8.0] - 2026-09-09
 
