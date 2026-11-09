@@ -110,6 +110,38 @@ describe('lazy-route reload loop — the clean mount must not release a live gua
   });
 });
 
+function stubWindowReload(): jest.Mock {
+  const reload = jest.fn();
+  Object.defineProperty(globalThis, 'window', {
+    configurable: true,
+    value: { location: { reload } },
+  });
+  return reload;
+}
+
+describe('reloadPage', () => {
+  afterEach(() => {
+    Reflect.deleteProperty(globalThis, 'window');
+  });
+
+  it('with a click event as its argument, reloads the real window', () => {
+    const windowReload = stubWindowReload();
+    const clickEvent = { type: 'click', preventDefault: jest.fn() } as unknown as ChunkRecoveryPorts;
+
+    reloadPage(clickEvent);
+
+    expect(windowReload).toHaveBeenCalledTimes(1);
+  });
+
+  it('with no argument, reloads the real window', () => {
+    const windowReload = stubWindowReload();
+
+    reloadPage();
+
+    expect(windowReload).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('clearChunkRecoveryFlag / reloadPage', () => {
   it('refuses to release a guard still inside its cooldown', () => {
     const { ports, state } = makePorts(null);

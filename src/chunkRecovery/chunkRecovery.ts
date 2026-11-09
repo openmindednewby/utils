@@ -173,7 +173,8 @@ export function clearChunkRecoveryFlag(ports: ChunkRecoveryPorts = defaultPorts(
   ports.clearAttempt();
 }
 
-/** Manually reload the page (the Reload action). */
-export function reloadPage(ports: ChunkRecoveryPorts = defaultPorts()): void {
-  ports.reload();
+/** Manually reload the page (the Reload action); an argument without `reload`, such as a click event, is ignored. */
+export function reloadPage(ports?: ChunkRecoveryPorts): void {
+  const target = typeof ports?.reload === 'function' ? ports : defaultPorts();
+  target.reload();
 }

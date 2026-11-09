@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `reloadPage` no longer treats a click event as its ports, so wiring it straight to a button's `onPress` reloads the page instead of throwing `reload is not a function` (FINREG-FORMS-CRASH-1 "FinReg text inputs crash after the ui-forms upgrade", AC-2).
+
 ### Added
 
 - `fireAndForget(promise)` (EXTRACT-TS-I18N-1 "Fold duplicated i18n and utils into @dloizides/i18n and @dloizides/utils"): starts a promise and swallows its rejection; replaces local copies in agora-web and ichnos-web.
