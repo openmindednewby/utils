@@ -12,12 +12,17 @@ export { assertDefined } from './assertions/assertDefined';
 // Async helpers
 export { fireAndForget } from './async/fireAndForget';
 export { singleFlight } from './async/singleFlight';
+export { rejectWithin, settleWithin } from './async/settleWithin';
 
 // Error helpers
 export { getErrorMessage } from './error/getErrorMessage';
 
 // Formatting
 export { formatDate } from './format/formatDate';
+export { megabytesText } from './format/megabytesText';
+export { isMonth, lastDayOfPeriod, monthName, periodOf, quarterOf, todayIso } from './date/isoDates';
+export { matchName } from './text/matchName';
+export { hundredths, numbersIn, readNumber } from './text/sentenceNumbers';
 
 // CSV serialization (RFC 4180, pure — no DOM). The browser download shell stays app-side.
 export { toCsv } from './csv/toCsv';
@@ -56,6 +61,8 @@ export * as assertions from './assertions';
 export * as async from './async';
 export * as error from './error';
 export * as format from './format';
+export * as date from './date';
+export * as text from './text';
 export * as csv from './csv';
 export * as navigation from './navigation';
 export * as chunkRecovery from './chunkRecovery';

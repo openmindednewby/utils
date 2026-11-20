@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.12.0
+
+- `settleWithin`, `rejectWithin`: race work against a time limit (fallback value or a made error).
+- `todayIso`, `periodOf`, `lastDayOfPeriod`, `monthName`, `quarterOf`, `isMonth` (`date` namespace): YYYY-MM-DD and YYYY-MM helpers.
+- `readNumber`, `hundredths`, `numbersIn`, `matchName` (`text` namespace): reading numbers and names out of free text.
+- `megabytesText`: a byte count as whole megabytes.
+- INV-EXTRACT-1 "Move every generic part of invoice-web into the shared packages".
+
 ## 1.11.0
 
 - `parseChecked`, `hasStringFields`, `hasArrayField`, `toFileJson`: checked JSON reading for files a user or another tool can edit (INVOICE-3 "Invoice interface over a user-chosen folder").
