@@ -1,6 +1,6 @@
 {
   "name": "@dloizides/utils",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "description": "Type-safe utility functions for TypeScript projects",
   "keywords": [
     "typescript",
@@ -60,6 +60,16 @@
       "import": {
         "types": "./dist/csv/index.d.mts",
         "default": "./dist/csv/index.mjs"
+      }
+    },
+    "./zip": {
+      "require": {
+        "types": "./dist/zip/index.d.ts",
+        "default": "./dist/zip/index.js"
+      },
+      "import": {
+        "types": "./dist/zip/index.d.mts",
+        "default": "./dist/zip/index.mjs"
       }
     }
   },
