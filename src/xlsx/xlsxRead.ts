@@ -110,19 +110,20 @@ function sheetPath(workbook: string | undefined, rels: string | undefined, sheet
 
 /** The cell values of one sheet (the named one, else the first) as rows of cells; strings, numbers or null. */
 export async function readXlsxRows(bytes: Uint8Array, sheetName: string | null): Promise<CellValue[][]> {
-  const entries = await readZipEntries(bytes).catch((error: unknown) => {
-    throw isFileFormatError(error) ? notXlsx() : error;
-  });
-  const read = (name: string): string | undefined => {
-    const data = entries.get(name);
-    if (data !== undefined && data.byteLength > MAX_XML_BYTES) {
-      throw notXlsx();
-    }
-    return data === undefined ? undefined : decoder.decode(data);
-  };
-  const sheet = read(sheetPath(read(WORKBOOK), read(WORKBOOK_RELS), sheetName));
+  const index = await xmlEntries(bytes, [WORKBOOK, WORKBOOK_RELS]);
+  const path = sheetPath(index.get(WORKBOOK), index.get(WORKBOOK_RELS), sheetName);
+  const parts = await xmlEntries(bytes, [path, SHARED_STRINGS]);
+  const sheet = parts.get(path);
   if (sheet === undefined) {
     throw notXlsx();
   }
-  return sheetRows(sheet, sharedStrings(read(SHARED_STRINGS)));
+  return sheetRows(sheet, sharedStrings(parts.get(SHARED_STRINGS)));
+}
+
+async function xmlEntries(bytes: Uint8Array, names: string[]): Promise<Map<string, string>> {
+  const options = { names: (name: string): boolean => names.includes(name), maxEntryBytes: MAX_XML_BYTES, maxTotalBytes: names.length * MAX_XML_BYTES };
+  const entries = await readZipEntries(bytes, options).catch((error: unknown) => {
+    throw isFileFormatError(error) ? notXlsx() : error;
+  });
+  return new Map([...entries].map(([name, data]) => [name, decoder.decode(data)]));
 }

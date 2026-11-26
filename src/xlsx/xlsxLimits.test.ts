@@ -46,6 +46,16 @@ describe('readXlsxRows limits', () => {
     await expect(read).rejects.toThrow(NOT_XLSX);
   });
 
+  it('with a corrupt file the workbook does not need, still reads the sheet', async () => {
+    const media = { name: 'xl/media/a.bin', text: 'unrelated media payload '.repeat(40) };
+    const bytes = xlsxFromSheet(sheetOf('<row r="1"><c r="A1"><v>7</v></c></row>'), '', [media]);
+    bytes.fill(0xff, 46, 52);
+
+    const rows = await readXlsxRows(bytes, DATA_SHEET);
+
+    expect(rows).toEqual([['7']]);
+  });
+
   it('with 50,000 unclosed cells in a row, returns within a second', async () => {
     const bytes = xlsxFromSheet(sheetOf(`<row r="1">${'<c r="A1">'.repeat(50000)}</row>`));
     const started = Date.now();

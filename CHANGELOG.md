@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.14.0
 
+- `readZipEntries(bytes, { names, maxEntryBytes, maxTotalBytes })`: reads only the files `names` accepts, refuses an entry whose declared or inflated size passes the cap (default 64 MB per entry, 256 MB in total) and cancels the inflate stream at the cap. `readXlsxRows` inflates only the workbook, its rels, sharedStrings and the target sheet, each capped at 50 MB, and refuses columns past XFD, rows past 1048576 and more than 1,000,000 cells.
 - `zip` subpath: `readZipEntries` (stored and deflated entries by name), `FileFormatError` and `isFileFormatError`; `xlsx` subpath (`@dloizides/utils/xlsx`): `readXlsxRows` and `CellValue`. Moved from @dloizides/invoice-core, which threw its own InvoiceError (INV-BANK-2 "Move the zip and xlsx readers to @dloizides/utils").
 
 ## 1.13.0

@@ -32,7 +32,12 @@ function sheetXml(rows: CellValue[][], strings: string[]): string {
   return `<?xml version="1.0"?><worksheet><sheetData>${rowXml.join('')}</sheetData></worksheet>`;
 }
 
-function deflatedZip(files: Array<{ name: string; text: string }>): Uint8Array {
+export interface FixtureFile {
+  name: string;
+  text: string;
+}
+
+export function deflatedZip(files: FixtureFile[]): Uint8Array {
   const parts: Buffer[] = [];
   const central: Buffer[] = [];
   let offset = 0;
@@ -64,8 +69,9 @@ export function xlsxFixture(rows: CellValue[][] = [['Date', 'Amount'], ['2026-10
   return xlsxFromSheet(sheet, strings.map((value) => `<si><t>${escapeXml(value)}</t></si>`).join(''));
 }
 
-export function xlsxFromSheet(sheet: string, shared = ''): Uint8Array {
+export function xlsxFromSheet(sheet: string, shared = '', first: FixtureFile[] = []): Uint8Array {
   return deflatedZip([
+    ...first,
     { name: 'xl/workbook.xml', text: `<workbook><sheets><sheet name="Cover" sheetId="1" r:id="rId1"/><sheet name="${DATA_SHEET}" sheetId="2" r:id="rId2"/></sheets></workbook>` },
     { name: 'xl/_rels/workbook.xml.rels', text: '<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Target="/xl/worksheets/sheet2.xml"/></Relationships>' },
     { name: 'xl/worksheets/sheet1.xml', text: '<worksheet><sheetData><row r="1"><c r="A1"><v>1</v></c></row></sheetData></worksheet>' },
