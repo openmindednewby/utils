@@ -61,7 +61,10 @@ function deflatedZip(files: Array<{ name: string; text: string }>): Uint8Array {
 export function xlsxFixture(rows: CellValue[][] = [['Date', 'Amount'], ['2026-10-01', 12.5]]): Uint8Array {
   const strings: string[] = [];
   const sheet = sheetXml(rows, strings);
-  const shared = strings.map((value) => `<si><t>${escapeXml(value)}</t></si>`).join('');
+  return xlsxFromSheet(sheet, strings.map((value) => `<si><t>${escapeXml(value)}</t></si>`).join(''));
+}
+
+export function xlsxFromSheet(sheet: string, shared = ''): Uint8Array {
   return deflatedZip([
     { name: 'xl/workbook.xml', text: `<workbook><sheets><sheet name="Cover" sheetId="1" r:id="rId1"/><sheet name="${DATA_SHEET}" sheetId="2" r:id="rId2"/></sheets></workbook>` },
     { name: 'xl/_rels/workbook.xml.rels', text: '<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Target="/xl/worksheets/sheet2.xml"/></Relationships>' },

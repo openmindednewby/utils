@@ -1,5 +1,6 @@
 import { FileFormatError, isFileFormatError } from '../zip/fileFormatError';
 import { readZipEntries } from '../zip/zipRead';
+import { xmlElements } from './xmlElements';
 
 export type CellValue = string | number | null;
 
@@ -8,6 +9,10 @@ const ENTITIES: Record<string, string | undefined> = { amp: '&', lt: '<', gt: '>
 const HEX = 16;
 const ALPHABET = 26;
 const COLUMN_BASE = 'A'.charCodeAt(0) - 1;
+const MAX_COLUMN_INDEX = 16383;
+const MAX_ROWS = 1048576;
+const MAX_CELLS = 1000000;
+const MAX_XML_BYTES = 50 * 1024 * 1024;
 const WORKBOOK = 'xl/workbook.xml';
 const WORKBOOK_RELS = 'xl/_rels/workbook.xml.rels';
 const SHARED_STRINGS = 'xl/sharedStrings.xml';
@@ -36,21 +41,25 @@ function attr(attrs: string, name: string): string | null {
 }
 
 function texts(xml: string): string {
-  return [...xml.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((match) => unescapeXml(match[1] ?? '')).join('');
+  return [...xmlElements(xml, 't')].map((element) => unescapeXml(element.inner ?? '')).join('');
 }
 
 function sharedStrings(xml: string | undefined): string[] {
-  return xml === undefined ? [] : [...xml.matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g)].map((match) => texts(match[1] ?? ''));
+  return xml === undefined ? [] : [...xmlElements(xml, 'si')].map((element) => texts(element.inner ?? ''));
 }
 
 function columnIndex(ref: string | null, fallback: number): number {
   const letters = ref === null ? '' : (/^[A-Z]+/.exec(ref)?.[0] ?? '');
-  return letters === '' ? fallback : [...letters].reduce((total, letter) => total * ALPHABET + letter.charCodeAt(0) - COLUMN_BASE, 0) - 1;
+  const index = letters === '' ? fallback : [...letters].reduce((total, letter) => total * ALPHABET + letter.charCodeAt(0) - COLUMN_BASE, 0) - 1;
+  if (index > MAX_COLUMN_INDEX) {
+    throw notXlsx();
+  }
+  return index;
 }
 
 function cellValue(attrs: string, inner: string | undefined, shared: string[]): string | null {
   const type = attr(attrs, 't');
-  const value = inner === undefined ? undefined : /<v>([\s\S]*?)<\/v>/.exec(inner)?.[1];
+  const value = inner === undefined ? undefined : xmlElements(inner, 'v').next().value?.inner;
   if (type === 'inlineStr') {
     return texts(inner ?? '');
   }
@@ -62,18 +71,27 @@ function cellValue(attrs: string, inner: string | undefined, shared: string[]): 
 
 function rowCells(xml: string, shared: string[]): CellValue[] {
   const row: CellValue[] = [];
-  for (const match of xml.matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
-    const attrs = match[1] ?? '';
-    row[columnIndex(attr(attrs, 'r'), row.length)] = cellValue(attrs, match[2], shared);
+  for (const element of xmlElements(xml, 'c')) {
+    row[columnIndex(attr(element.attrs, 'r'), row.length)] = cellValue(element.attrs, element.inner, shared);
   }
   return Array.from(row, (value) => value ?? null);
 }
 
 function sheetRows(xml: string, shared: string[]): CellValue[][] {
   const rows: CellValue[][] = [];
-  for (const match of xml.matchAll(/<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g)) {
-    const number = Number(attr(match[1] ?? '', 'r'));
-    rows[Number.isInteger(number) && number > 0 ? number - 1 : rows.length] = rowCells(match[2] ?? '', shared);
+  let cells = 0;
+  for (const element of xmlElements(xml, 'row')) {
+    const number = Number(attr(element.attrs, 'r'));
+    const index = Number.isInteger(number) && number > 0 ? number - 1 : rows.length;
+    if (index >= MAX_ROWS) {
+      throw notXlsx();
+    }
+    const row = rowCells(element.inner ?? '', shared);
+    cells += row.length;
+    if (cells > MAX_CELLS) {
+      throw notXlsx();
+    }
+    rows[index] = row;
   }
   return Array.from(rows, (row) => row ?? []);
 }
@@ -97,6 +115,9 @@ export async function readXlsxRows(bytes: Uint8Array, sheetName: string | null):
   });
   const read = (name: string): string | undefined => {
     const data = entries.get(name);
+    if (data !== undefined && data.byteLength > MAX_XML_BYTES) {
+      throw notXlsx();
+    }
     return data === undefined ? undefined : decoder.decode(data);
   };
   const sheet = read(sheetPath(read(WORKBOOK), read(WORKBOOK_RELS), sheetName));
