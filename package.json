@@ -71,6 +71,16 @@
         "types": "./dist/zip/index.d.mts",
         "default": "./dist/zip/index.mjs"
       }
+    },
+    "./xlsx": {
+      "require": {
+        "types": "./dist/xlsx/index.d.ts",
+        "default": "./dist/xlsx/index.js"
+      },
+      "import": {
+        "types": "./dist/xlsx/index.d.mts",
+        "default": "./dist/xlsx/index.mjs"
+      }
     }
   },
   "files": [

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.14.0
+
+- `zip` subpath: `readZipEntries` (stored and deflated entries by name), `FileFormatError` and `isFileFormatError`; `xlsx` subpath (`@dloizides/utils/xlsx`): `readXlsxRows` and `CellValue`. Moved from @dloizides/invoice-core, which threw its own InvoiceError (INV-BANK-2 "Move the zip and xlsx readers to @dloizides/utils").
+
 ## 1.13.0
 
 - `zip` subpath (`@dloizides/utils/zip`): `createZip` (uncompressed zip, UTF-8 names, entry order) and `crc32`; moved from @dloizides/invoice-core (INV-EXTRACT-2 "Extraction leftovers after INV-EXTRACT-1").
